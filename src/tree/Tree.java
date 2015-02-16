@@ -7,7 +7,7 @@ import java.util.StringTokenizer;
 /**
  * Tree API assignment for CIT594, Spring 2015.
  * 
- * @author <Your name goes here>
+ * @author Nicki Hoffman
  * @param <V> The type of value that can be held in each Tree node.
  */
 public class Tree<V> implements Iterable<Tree<V>> {
@@ -20,11 +20,12 @@ public class Tree<V> implements Iterable<Tree<V>> {
      * 
      * @param value The value to be put in the root.
      * @param children The immediate children of the root.
-     * @throws IllegalArgumentException
-     *         If the operation would create a circular Tree.
      */
     public Tree(V value, Tree<V>... children) {
-        // TODO
+    	// removed the @throws per piazza @138
+    	this.value = value;
+    	this.children = new ArrayList<Tree<V>>();
+    	this.addChildren(children);
     }
     
     /**
@@ -33,7 +34,7 @@ public class Tree<V> implements Iterable<Tree<V>> {
      * @param value The value to be stored in this node.
      */
     public void setValue(V value) {
-     // TODO
+    	if (this.value.getClass().equals(value.getClass())) this.value = value;
     }
     
     /**
@@ -42,7 +43,7 @@ public class Tree<V> implements Iterable<Tree<V>> {
      * @return The value in this node.
      */
     public V getValue() {
-        return null; // TODO Replace with correct result
+        return value;
     }
     
     /**
@@ -55,16 +56,20 @@ public class Tree<V> implements Iterable<Tree<V>> {
      * @throws IllegalArgumentException
      *         If the operation would create a circular Tree.
      */
-    public void addChild(int index, Tree<V> child) {
-        // TODO
+    public void addChild(int index, Tree<V> child) throws IllegalArgumentException {
+        if (!child.contains(this)) children.add(index, child);
+        else throw new IllegalArgumentException("That request would result in a cycle!");
     }
     
     /**
      * Adds the child as the new last child of this node.
      * @param child The child to be added to this node.
+     * @throws IllegalArgumentException
+     *         If the operation would create a circular Tree.
      */
-    public void addChild(Tree<V> child) {
-        // TODO
+    public void addChild(Tree<V> child) throws IllegalArgumentException {
+        if (!child.contains(this)) children.add(child);
+        else throw new IllegalArgumentException("That request would result in a cycle!");
     }
 
     /**
@@ -75,7 +80,7 @@ public class Tree<V> implements Iterable<Tree<V>> {
      *         If the operation would create a circular Tree.
      */
     public void addChildren(Tree<V>... children) {
-        // TODO
+        for (Tree<V> child : children) this.addChild(child);
     }
     
     /**
@@ -84,7 +89,7 @@ public class Tree<V> implements Iterable<Tree<V>> {
      * @return A count of this node's immediate children.
      */
     public int getNumberOfChildren() {
-        return -1; // TODO Replace with correct result
+        return children.size();
     }
     
     /**
@@ -96,7 +101,8 @@ public class Tree<V> implements Iterable<Tree<V>> {
      *     is greater than or equal to the current number of children of this node.
      */
     public Tree<V> getChild(int index) {
-        return null; // TODO Replace with correct result
+    	// was going to do an if, but IOoB exception will be thrown correctly with:
+        return children.get(index);
     }
     
     /**
@@ -106,18 +112,22 @@ public class Tree<V> implements Iterable<Tree<V>> {
      */
     @Override
     public Iterator<Tree<V>> iterator() {
-        return null; // TODO Replace with correct result
+        return children.iterator();
     }
     
     /**
-     * Searchs this Tree for a node that is == to <code>node</code>,
+     * Searches this Tree for a node that is == to <code>node</code>,
      * and returns <code>true</code> if found, <code>false</code> otherwise.
      * 
      * @param node The node to be searched for.
      * @return <code>true</code> iff the node is found.
      */
     boolean contains(Tree<V> node) {
-        return false; // TODO Replace with correct result
+    	if (this == node) return true;
+    	for (Tree<V> child : children) {
+    		if (child.contains(node)) return true;
+    	}
+        return false;
     }
     
     /**
@@ -129,7 +139,11 @@ public class Tree<V> implements Iterable<Tree<V>> {
      */
     @Override
     public String toString() {
-        return null; // TODO Replace with correct result
+    	if (children.size() == 0) return value + " ";
+    	String result = value + "(";
+    	for (Tree<V> child : children) result += child.toString();
+    	result += ") ";
+        return result;
     }
     
     /**
@@ -146,7 +160,8 @@ public class Tree<V> implements Iterable<Tree<V>> {
      * @param indent The amount to indent the root.
      */
     private static void print(Tree<?> node, String indent) {
-        // TODO
+    	System.out.println(indent + node.value);
+    	for (Tree<?> child : node.children) print(child, indent + "  ");
     }
     
     /**
@@ -159,7 +174,14 @@ public class Tree<V> implements Iterable<Tree<V>> {
      */
     @Override
     public boolean equals(Object obj) {
-        return false; // TODO Replace with correct result
+    	if (!(obj instanceof Tree<?>)) return false;
+    	Tree<V> that = (Tree<V>) obj;
+    	if (!value.equals(that.value)) return false; 
+    	if (!children.equals(that.children)) return false; 	// compares arraylists
+    	for (int i = 0; i < children.size(); i++) {
+    		if (!children.get(i).equals(that.children.get(i))) return false; 	// recursive; compares trees
+    	}
+        return true;
     }
     
     /**
@@ -182,7 +204,13 @@ public class Tree<V> implements Iterable<Tree<V>> {
      */
     @Override
     public int hashCode() {
-        return 0;  // TODO Replace with better result
+    	int result = value.hashCode();
+    	int sign = 1;
+    	for (Tree<V> child : children) {
+    		result += sign * child.hashCode();
+    		sign *= -1;
+    	}
+        return result;
     }
     
     /**
@@ -197,6 +225,7 @@ public class Tree<V> implements Iterable<Tree<V>> {
     public static Tree<String> parse(String input) {
         PushbackStringTokenizer tokenizer = new PushbackStringTokenizer(input);
         Tree<String> tree = parse(tokenizer);
+        //if (tree != null) tree.print();
         if (tokenizer.hasNext()) {
             throw new IllegalArgumentException("Tokenizer error at: " + tokenizer.next());
         }
@@ -214,7 +243,35 @@ public class Tree<V> implements Iterable<Tree<V>> {
     static Tree<String> parse(PushbackStringTokenizer tokenizer)
             throws IllegalArgumentException {
         // Helper method for parse(String); or can be used alone
-        return null; // TODO Replace with correct result
+    	Tree<String> root;
+    	String token;
+//      Get a value (token) from the tokenizer if you can, else return null;
+    	if ((token = tokenizer.next()) == null) return null;
+    	else if (")".equals(token)) {
+    		tokenizer.pushBack(token);
+    		return null;
+    	}
+    	
+//      Make a tree with this value in the root;
+    	root = new Tree(token);
+//      If the next token is an open parenthesis {
+    	if ("(".equals((token = tokenizer.next()))) {
+//          Recur to get a (sub)tree;
+    		Tree<String> subtree = parse(tokenizer);
+    		while (subtree != null) {
+//              Add the tree as a child to the root;
+    			root.addChild(subtree);
+//              Recur to get another (sub)tree;
+    			subtree = parse(tokenizer);
+    		}
+//          Make sure the next token is a close parenthesis; 
+    		if (!(")".equals(tokenizer.next()))) {
+    			throw new IllegalArgumentException("Missing close parenthesis");
+    		}
+    	}
+    	else tokenizer.pushBack(token);
+
+        return root; // TODO test
     }
     
     //---------------------------------------------------------------------

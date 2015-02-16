@@ -5,8 +5,8 @@ import java.util.Iterator;
 
 /**
  * Class for representing simple arithmetic expressions.
- * @author <Your name goes here>
- * @version Feb 10, 2015
+ * @author Nicki Hoffman
+ * @version Feb 16, 2015
  */
 public class Expression {
     Tree<String> expressionTree;
@@ -27,6 +27,7 @@ public class Expression {
      */
     public Expression(String expression) {
         expressionTree = Tree.parse(expression);
+        //expressionTree.print();
         if (!valid(expressionTree)) {
             throw new IllegalArgumentException("Invalid expression: " + expression);
         }
@@ -38,7 +39,34 @@ public class Expression {
      * @return <code>true</code> iff the Tree is a valid Expression.
      */
     private boolean valid(Tree<String> tree) {
-        return false; // TODO Replace with correct result
+    	if ("+".equals(tree.getValue()) || "*".equals(tree.getValue())) {
+    		if (tree.getNumberOfChildren() < 2) return false;
+    	} else if ("-".equals(tree.getValue()) || "/".equals(tree.getValue())) {
+    		if (tree.getNumberOfChildren() != 2) return false;
+    	} else if (isUnsignedInt(tree.getValue())) {
+    		if (tree.getNumberOfChildren() != 0) return false;
+    	} else {
+    		return false;
+    	}
+    	Iterator<Tree<String>> iter = tree.iterator();
+    	while (iter.hasNext()) {
+    		if (!valid(iter.next())) return false;
+    	}
+        return true;
+    }
+    
+    /**Tests whether string s can be evaluated as an unsigned integer.
+     * @param s The string to test.
+     * @return boolean true if string is a nonnegative integer, else false
+     */
+    private boolean isUnsignedInt(String s) {
+    	int n;
+    	try {
+    		n = (int) Integer.parseInt(s); //if I wanted long int, this wouldn't suffice, I know
+    	} catch(Exception e) {
+    		return false;
+    	}
+    	return n >= 0;
     }
     
     /**
@@ -55,10 +83,23 @@ public class Expression {
      */
     private int evaluate(Tree<String> tree) {
         // Helper method for evaluate()
-        return -1; // TODO Replace with correct result
+    	if (tree.getNumberOfChildren() == 0) return (int) Integer.parseInt(tree.getValue());
+    	Iterator<Tree<String>> iter = tree.iterator();
+    	int result = evaluate(iter.next());
+    	while (iter.hasNext()) {
+    		if ("*".equals(tree.getValue())) result *= evaluate(iter.next());
+    		else if ("+".equals(tree.getValue())) result += evaluate(iter.next());
+    		else if ("-".equals(tree.getValue())) result -= evaluate(iter.next());
+    		else if ("/".equals(tree.getValue())) result /= evaluate(iter.next());
+    	}
+        return result; // TODO test
     }
     
     /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    /**Returns this expression as a one-line, formatted string.
+     * @return String representation of the tree
      * @see java.lang.Object#toString()
      */
     @Override
@@ -66,8 +107,18 @@ public class Expression {
         return toString(expressionTree);
     }
     
+    /**Returns this expression as a one-line, formatted string.
+     * @param tree Tree to convert to string
+     * @return String representation of the tree
+     */
     private static String toString(Tree<String> tree) {
         // Helper method for toString()
-        return null; // TODO Replace with correct result        
+    	if (tree.getNumberOfChildren() == 0) return tree.getValue();
+    	Iterator<Tree<String>> iter = tree.iterator();
+    	String result = "(" + toString(iter.next()).trim();
+    	while (iter.hasNext()) {
+    		result += " " + tree.getValue() + " " + toString(iter.next()).trim();
+    	}
+        return result + ")";      
     }
 }
