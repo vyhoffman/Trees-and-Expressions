@@ -83,6 +83,14 @@ public class ExpressionTest {
     }
 
     /**
+     * Exception test method for {@link tree.Expression#Expression(java.lang.String)}
+     */
+    @Test(expected=IllegalArgumentException.class)
+    public final void testExpressionException7() {
+    	new Expression("(1)");
+    }
+
+    /**
      * Test method for {@link tree.Expression#evaluate()}
      */
     @Test
