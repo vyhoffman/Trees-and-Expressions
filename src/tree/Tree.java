@@ -23,6 +23,8 @@ public class Tree<V> implements Iterable<Tree<V>> {
      */
     public Tree(V value, Tree<V>... children) {
     	// removed the @throws per piazza @138
+    	value.getClass(); //hack to make it nullpointerE if value==null
+    	//but that won't E or reject if value == "" e.g.
     	this.value = value;
     	this.children = new ArrayList<Tree<V>>();
     	this.addChildren(children);
@@ -33,8 +35,9 @@ public class Tree<V> implements Iterable<Tree<V>> {
      * 
      * @param value The value to be stored in this node.
      */
-    public void setValue(V value) {
-    	if (this.value.getClass().equals(value.getClass())) this.value = value;
+    public void setValue(V value) {//swithced order to e if value==null
+    	if (value.getClass().equals(this.value.getClass())) this.value = value;
+//    	if (this.value.getClass().equals(value.getClass())) this.value = value;
     }
     
     /**
