@@ -44,23 +44,40 @@ public class TreeTest {
     	assertEquals(tree2.hashCode(), tree2b.hashCode());
     }
 
-    /**this one didn't throw? ah because it's not ensuring non-null value
-     * exception Test method for Tree constructor
+    /**
+     * Test method for Tree constructor
      */
-    @Test(expected=NullPointerException.class)
-    public final void testTreeException2() { //trees were constructed in setup, check they're as expected
-    	new Tree(null);
+    @Test
+    public final void testTree() { //trees were constructed in setup, check they're as expected
+    	assertEquals("two", tree1.getValue());
+    	assertEquals(node1, tree1.getChild(0));
+    	assertEquals("four", tree2.getValue());
+    	assertEquals(tree1, tree2.getChild(1));
     }
 
+//    /**
+//     * exception Test method for Tree constructor
+//     * commenting out because instructions don't say check for valid value input
+//     * so I don't
+//     */
+//    @Test(expected=NullPointerException.class)
+//    public final void testTreeException2() {
+//    	new Tree(null);
+//    }
+
     /**
-     * exception Test method for Tree constructor
+     * Null child input exception Test method for Tree constructor
      */
     @Test(expected=NullPointerException.class)
-    public final void testTreeException1() { //trees were constructed in setup, check they're as expected
+    public final void testTreeNullChild() {
     	new Tree("value", null);
     }
     
-// null or empty values should fail too but it didn't say so in instructions
+// null or empty value should probably fail too but it didn't say so in instructions
+    // issue came up sort of in piazza @154 but was not really resolved -
+    // no official update to the assignment was made, just says null nodes aren't
+    // allowed, and attempting to add them does fail. I'm trying to follow the 
+    // instructions that we were actually given.
 
     /**
      * Test method for {@link tree.Tree#setValue(Object)}
@@ -74,13 +91,15 @@ public class TreeTest {
     	assertEquals((Integer) 5, tree.getValue());
     }
 
-    /**
-     * exception Test method for setValue - logically it should throw exception
-     */
-    @Test(expected=NullPointerException.class)
-    public final void testSetValueException() { //trees were constructed in setup, check they're as expected
-    	node1.setValue(null);
-    }
+//    /**
+//     * Null input exception test method for setValue - I think it should throw NPexception
+//     * and it did when I was checking for type match but wasn't sure I should do that
+//     * and again, instructions don't say validate value input
+//     */
+//    @Test(expected=NullPointerException.class)
+//    public final void testSetValueNull() {
+//    	node1.setValue(null);
+//    }
 
     /**
      * Test method for {@link tree.Tree#getValue()}
@@ -107,18 +126,9 @@ public class TreeTest {
     	assertEquals(tree1, tree2.getChild(3));
     	assertEquals(node1, tree2.getChild(4));
     }
-
-    /**Ohhhkay these throw correctly because they try to check whether the child (null)
-     * contains the parent. 
-     * exception Test method for addChildren
-     */
-    @Test(expected=NullPointerException.class)
-    public final void testAddChildrenException2() { //trees were constructed in setup, check they're as expected
-    	node1.addChildren(null);
-    }
     
     /**
-     * Exception test method for addChild()
+     * Illegal argument exception test method for indexed addChild()
      */
     @Test(expected=IllegalArgumentException.class)
     public final void testAddChildIntTreeOfVException() {
@@ -126,19 +136,11 @@ public class TreeTest {
     }
 
     /**
-     * exception Test method for Tree constructor
+     * Null input exception Test method for indexed addChild()
      */
     @Test(expected=NullPointerException.class)
-    public final void testAddChildIndexException() { //trees were constructed in setup, check they're as expected
+    public final void testAddChildIntTreeOfVNull() {
     	node1.addChild(0, null);
-    }
-
-    /**
-     * exception Test method for Tree constructor
-     */
-    @Test(expected=NullPointerException.class)
-    public final void testAddChildNull() { //trees were constructed in setup, check they're as expected
-    	node1.addChild(null);
     }
 
     /**
@@ -154,9 +156,17 @@ public class TreeTest {
     	assertEquals(tree1, tree2.getChild(3));
     	assertEquals(node1, tree2.getChild(4));
     }
+
+    /**
+     * Null input exception test method for addChild()
+     */
+    @Test(expected=NullPointerException.class)
+    public final void testAddChildTreeOfVNull() {
+    	node1.addChild(null);
+    }
     
     /**
-     * Exception test method for addChild()
+     * Illegal argument exception test method for addChild()
      */
     @Test(expected=IllegalArgumentException.class)
     public final void testAddChildException() {
@@ -177,9 +187,18 @@ public class TreeTest {
     	assertEquals(node1, tree2.getChild(5));
     	assertEquals(tree1, tree2.getChild(6));
     }
+
+    /**
+     * Null input exception Test method for addChildren
+     */
+    @Test(expected=NullPointerException.class)
+    public final void testAddChildrenNull() {
+    	node1.addChildren(null);
+    	//Ohhhkay these throw correctly because they try to check whether the child (null) contains the parent. 
+    }
     
     /**
-     * Exception test method for addChildren()
+     * Illegal argument exception test method for addChildren()
      */
     @Test(expected=IllegalArgumentException.class)
     public final void testAddChildrenException() {
@@ -277,10 +296,10 @@ public class TreeTest {
     	
     	assertFalse(node1.equals(null));
     	
-    	//assertNotEquals(node1, tree1);
-    	//assertNotEquals(tree1, tree2);
+    	assertNotEquals(node1, tree1);
+    	assertNotEquals(tree1, tree2);
     	node1b.setValue("seventeen");
-    	//assertNotEquals(node1, node1b);
+    	assertNotEquals(node1, node1b);
     }
 
     /**
@@ -301,7 +320,7 @@ public class TreeTest {
     }
     
     /**
-     * Exception test method for {@link tree.Tree#parse(java.lang.String)}
+     * Illegal argument exception test method for {@link tree.Tree#parse(java.lang.String)}
      */
     @Test(expected=IllegalArgumentException.class)
     public final void testParseStringException1() {
@@ -309,7 +328,7 @@ public class TreeTest {
     }
     
     /**
-     * Exception test method for {@link tree.Tree#parse(java.lang.String)}
+     * Illegal argument exception test method for {@link tree.Tree#parse(java.lang.String)}
      */
     @Test(expected=IllegalArgumentException.class)
     public final void testParseStringException2() {
